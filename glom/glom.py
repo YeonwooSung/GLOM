@@ -8,12 +8,6 @@ from einops.layers.torch import Rearrange
 
 
 
-#------------------------------
-# constants
-#------------------------------
-
-TOKEN_ATTEND_SELF_VALUE = - (5e-4)
-
 
 #------------------------------
 # helpers
@@ -51,6 +45,9 @@ class ConsensusAttention(nn.Module):
         self.attend_self = attend_self
         self.local_consensus_radius = local_consensus_radius
 
+        # constant
+        self.TOKEN_ATTEND_SELF_VALUE = -5e-4
+
         if self.local_consensus_radius > 0:
             coors = torch.stack(torch.meshgrid(
                 torch.arange(num_patches_side),
@@ -72,7 +69,7 @@ class ConsensusAttention(nn.Module):
         if not self.attend_self:
             self_mask = torch.eye(n, device = device, dtype = torch.bool)
             self_mask = rearrange(self_mask, 'i j -> () () i j')
-            sim.masked_fill_(self_mask, TOKEN_ATTEND_SELF_VALUE)
+            sim.masked_fill_(self_mask, self.TOKEN_ATTEND_SELF_VALUE)
 
         if self.local_consensus_radius > 0:
             max_neg_value = -torch.finfo(sim.dtype).max
