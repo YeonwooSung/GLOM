@@ -106,6 +106,7 @@ levels3 = model(img3, levels = levels2, iters = 6)  # image 3 for 6 iterations
 ## 3. ToDo
 
 - contrastive / consistency regularization of top-ish levels
+- re-implement the model with PyTorchLightning
 
 ## 4. Citations
 
