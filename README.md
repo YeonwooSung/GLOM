@@ -10,9 +10,9 @@ An implementation of Geoffrey Hinton's paper "How to represent part-whole hierar
 
 ```python
 import torch
-from glom_pytorch import Glom
+from pyglom import GLOM
 
-model = Glom(
+model = GLOM(
     dim = 512,         # dimension
     levels = 6,        # number of levels
     image_size = 224,  # image size
@@ -29,9 +29,9 @@ It also gives you access to all the level data across iterations for clustering,
 
 ```python
 import torch
-from glom_pytorch import Glom
+from pyglom import GLOM
 
-model = Glom(
+model = GLOM(
     dim = 512,         # dimension
     levels = 6,        # number of levels
     image_size = 224,  # image size
@@ -53,9 +53,9 @@ import torch.nn.functional as F
 from torch import nn
 from einops.layers.torch import Rearrange
 
-from glom_pytorch import Glom
+from pyglom import GLOM
 
-model = Glom(
+model = GLOM(
     dim = 512,         # dimension
     levels = 6,        # number of levels
     image_size = 224,  # image size
@@ -85,9 +85,9 @@ You can pass in the state of the column and levels back into the model to contin
 
 ```python
 import torch
-from glom_pytorch import Glom
+from pyglom import GLOM
 
-model = Glom(
+model = GLOM(
     dim = 512,
     levels = 6,
     image_size = 224,
