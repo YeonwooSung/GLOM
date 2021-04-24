@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 
-from glom.glom import GLOM
+from pyglom.glom import GLOM
 
 
 
