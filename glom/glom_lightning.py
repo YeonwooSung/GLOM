@@ -10,6 +10,7 @@ from einops.layers.torch import Rearrange
 from glom.glom import GLOM
 
 
+
 #------------------------------
 # main class
 #------------------------------
@@ -23,10 +24,12 @@ class LightningGLOM(pl.LightningModule):
         image_size=224,
         patch_size=14,
         consensus_self=False,
-        local_consensus_radius=0
+        local_consensus_radius=0,
+        lr=1e-3
     ):
-        super().__init__()
-        
+        super().__init__()        
+        self.lr = lr
+
         # a GLOM model
         self.glom = GLOM(
             dim=dim, 
@@ -37,6 +40,7 @@ class LightningGLOM(pl.LightningModule):
             local_consensus_radius=local_consensus_radius
         )
 
+        # use MSE loss as a loss function
         self.loss_func = F.mse_loss
 
         # a network that converts the generated patches to images
@@ -97,9 +101,9 @@ class LightningGLOM(pl.LightningModule):
         for img in imgs:
             l = calculate_loss(img)
             loss += l
-
         return {'val_loss': loss}
 
 
     def configure_optimizers(self):
-        return None
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        return optimizer
