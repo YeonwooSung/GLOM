@@ -100,7 +100,8 @@ class GLOM(nn.Module):
         image_size = 224,
         patch_size = 14,
         consensus_self = False,
-        local_consensus_radius = 0
+        local_consensus_radius = 0,
+        img_channels=3
     ):
         super().__init__()
         # bottom level - incoming image, tokenize and add position
@@ -110,7 +111,7 @@ class GLOM(nn.Module):
 
         self.image_to_tokens = nn.Sequential(
             Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size),
-            nn.Linear(patch_size ** 2 * 3, dim)
+            nn.Linear(patch_size ** 2 * img_channels, dim)
         )
         self.pos_emb = nn.Embedding(num_patches, dim)
 

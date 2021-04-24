@@ -2,6 +2,7 @@ from math import sqrt
 import torch
 import torch.nn.functional as F
 from torch import nn, einsum
+from torch.autograd import Variable
 import pytorch_lightning as pl
 
 from einops import rearrange, repeat
@@ -25,7 +26,8 @@ class LightningGLOM(pl.LightningModule):
         patch_size=14,
         consensus_self=False,
         local_consensus_radius=0,
-        lr=1e-3
+        lr=1e-3,
+        img_channels=3
     ):
         super().__init__()        
         self.lr, self.levels = lr, levels
@@ -37,7 +39,8 @@ class LightningGLOM(pl.LightningModule):
             image_size=image_size, 
             patch_size=patch_size, 
             consensus_self=consensus_self, 
-            local_consensus_radius=local_consensus_radius
+            local_consensus_radius=local_consensus_radius,
+            img_channels=img_channels
         )
 
         # use MSE loss as a loss function
@@ -45,7 +48,7 @@ class LightningGLOM(pl.LightningModule):
 
         # a network that converts the generated patches to images
         self.patches_to_images = nn.Sequential(
-            nn.Linear(dim, patch_size ** 2 * 3),
+            nn.Linear(dim, patch_size ** 2 * img_channels),
             Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', p1 = 14, p2 = 14, h = (224 // 14))
         )
 
@@ -56,6 +59,8 @@ class LightningGLOM(pl.LightningModule):
 
 
     def calculate_loss(self, img):
+        # change the shape of the tensor from 3D to 4D
+        img = img.unsqueeze(0)
         # add random noise to images
         noised_img = img + torch.randn_like(img)
 
@@ -71,7 +76,7 @@ class LightningGLOM(pl.LightningModule):
         recon_img = all_levels[self.levels + 1, :, :, -1]
 
         # calculate loss
-        loss = self.loss_func(img, recon_img)
+        loss = self.loss_func(img, recon_img.unsqueeze(0))
 
         return loss
 
@@ -79,15 +84,18 @@ class LightningGLOM(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         imgs, y = batch
 
-        if torch.cuda.is_available():
-            loss = Variable(torch.zeros(1).cuda(), requires_grad=True)
-        else:
-            loss = Variable(torch.zeros(1), requires_grad=True)
+        # if torch.cuda.is_available():
+        #     loss = Variable(torch.zeros(1).cuda(), requires_grad=True)
+        # else:
+        #     loss = Variable(torch.zeros(1), requires_grad=True)\
+        loss = None
 
         # iterate all images in the mini batch
         for img in imgs:
-            l = calculate_loss(img)
-            loss += l
+            if loss:
+                loss += self.calculate_loss(img)
+            else:
+                loss = self.calculate_loss(img)
         tensorboard_logs = {'train_loss': loss}
 
         return {'loss': loss, 'log': tensorboard_logs}
@@ -96,15 +104,18 @@ class LightningGLOM(pl.LightningModule):
     def validation_step(self, batch, batch_nb):
         imgs, y = batch
 
-        if torch.cuda.is_available():
-            loss = Variable(torch.zeros(1).cuda(), requires_grad=True)
-        else:
-            loss = Variable(torch.zeros(1), requires_grad=True)
+        # if torch.cuda.is_available():
+        #     loss = Variable(torch.zeros(1).cuda(), requires_grad=True)
+        # else:
+        #     loss = Variable(torch.zeros(1), requires_grad=True)
+        loss = None
 
         # iterate all images in the mini batch
         for img in imgs:
-            l = calculate_loss(img)
-            loss += l
+            if loss:
+                loss += self.calculate_loss(img)
+            else:
+                loss = self.calculate_loss(img)
         return {'val_loss': loss}
 
 
