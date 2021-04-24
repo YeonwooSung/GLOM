@@ -9,9 +9,9 @@ with open(path.join(basedir, 'README.md'), encoding='utf-8') as f:
 setup(
     name='pyglom',
     packages=find_packages(),
-    version='0.0.1',
+    version='0.0.2',
     license='MIT',
-    description='Pytorch implementation of GLOM',
+    description='PyTorch implementation of GLOM. PyTorch-Lightning version is also available.',
     author='Yeonwoo Sung',
     author_email='neos960518@gmail.com',
     url='https://github.com/YeonwooSung/GLOM',
@@ -28,6 +28,7 @@ setup(
     ],
     install_requires=[
         'einops>=0.3',
+        "pytorch-lightning==0.8.5",
         'torch>=1.6'
     ],
     classifiers=[
