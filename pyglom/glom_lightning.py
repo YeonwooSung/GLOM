@@ -83,11 +83,6 @@ class LightningGLOM(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         imgs, y = batch
-
-        # if torch.cuda.is_available():
-        #     loss = Variable(torch.zeros(1).cuda(), requires_grad=True)
-        # else:
-        #     loss = Variable(torch.zeros(1), requires_grad=True)\
         loss = None
 
         # iterate all images in the mini batch
@@ -103,11 +98,6 @@ class LightningGLOM(pl.LightningModule):
 
     def validation_step(self, batch, batch_nb):
         imgs, y = batch
-
-        # if torch.cuda.is_available():
-        #     loss = Variable(torch.zeros(1).cuda(), requires_grad=True)
-        # else:
-        #     loss = Variable(torch.zeros(1), requires_grad=True)
         loss = None
 
         # iterate all images in the mini batch
@@ -116,7 +106,9 @@ class LightningGLOM(pl.LightningModule):
                 loss += self.calculate_loss(img)
             else:
                 loss = self.calculate_loss(img)
-        return {'val_loss': loss}
+        tensorboard_logs = {'val_loss': loss}
+
+        return {'loss': loss, 'val_loss': loss ,'log': tensorboard_logs}
 
 
     def configure_optimizers(self):
