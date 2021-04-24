@@ -27,7 +27,11 @@ def default(val, d):
 class GroupedFeedForward(nn.Module):
     def __init__(self, *, dim, groups, mult = 4):
         super().__init__()
-        total_dim = dim * groups # levels * dim
+
+        # levels * dim
+        total_dim = dim * groups
+
+        # a grouped feed forward network
         self.net = nn.Sequential(
             Rearrange('b n l d -> b (l d) n'),
             nn.Conv1d(total_dim, total_dim * mult, 1, groups = groups),
@@ -56,9 +60,12 @@ class ConsensusAttention(nn.Module):
 
             coors = rearrange(coors, 'c h w -> (h w) c')
             dist = torch.cdist(coors, coors)
+
             mask_non_local = dist > self.local_consensus_radius
             mask_non_local = rearrange(mask_non_local, 'i j -> () i j')
+            
             self.register_buffer('non_local_mask', mask_non_local)
+
 
     def forward(self, levels):
         _, n, _, d, device = *levels.shape, levels.device
