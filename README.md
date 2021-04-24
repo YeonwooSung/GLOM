@@ -134,17 +134,9 @@ glom = LightningGLOM(
     img_channels=1
 )
 
-checkpoint_callback = ModelCheckpoint(
-    monitor='val_loss',
-    dirpath='.',
-    filename='mnist-{epoch:02d}-{val_loss:.2f}',
-    save_top_k=3,
-    mode='min',
-)
-
 gpus = torch.cuda.device_count()
-trainer = pl.Trainer(callbacks=[checkpoint_callback], gpus=gpus)
-trainer.fit(glom, DataLoader(train, batch_size=8, num_workers=2), DataLoader(val, batch_size=32, num_workers=2))
+trainer = pl.Trainer(gpus=gpus, max_epochs=5)
+trainer.fit(glom, DataLoader(train, batch_size=8, num_workers=2), DataLoader(val, batch_size=8, num_workers=2))
 ```
 
 ## 3. ToDo
