@@ -28,7 +28,7 @@ setup(
     ],
     install_requires=[
         'einops>=0.3',
-        "pytorch-lightning==0.8.5",
+        "pytorch-lightning==1.6.0",
         'torch>=1.6'
     ],
     classifiers=[
